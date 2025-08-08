@@ -1,0 +1,26 @@
+// Example schema for our server
+namespace MyServer.Payloads;
+
+// A union allows us to send different types of data in the same payload
+union AnyPayload {
+  EchoRequest,
+  ReverseRequest
+}
+
+table EchoRequest {
+  message:string;
+}
+
+table ReverseRequest {
+  data:string;
+}
+
+// This is the root table that will contain our union
+table Root {
+  payload:AnyPayload;
+}
+
+// The file identifier is important for the server to know what kind of data it's receiving
+file_identifier "PLDE";
+
+root_type Root;

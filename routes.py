@@ -2,11 +2,11 @@ class Router:
     def __init__(self):
         self._routes = {}
 
-    def register(self, label, handler):
-        """Registers a new handler for a given label."""
-        print(f"[ROUTER] Registering handler for '{label}'")
-        self._routes[label] = handler
+    def register(self, payload_type, handler):
+        """Registers a handler for a specific FlatBuffers payload type."""
+        print(f"[ROUTER] Registering handler for type '{payload_type}'")
+        self._routes[payload_type] = handler
 
-    def get_handler(self, label):
-        """Retrieves the handler for a given label."""
-        return self._routes.get(label)
+    def get_handler(self, payload_type):
+        """Retrieves the handler for a given payload type."""
+        return self._routes.get(payload_type)
