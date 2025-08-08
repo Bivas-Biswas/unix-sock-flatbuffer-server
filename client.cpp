@@ -79,9 +79,9 @@ void send_request(flatbuffers::FlatBufferBuilder& builder) {
     uint8_t* buf = builder.GetBufferPointer();
     int payload_len = builder.GetSize();
 
-    // Create the full message: identifier + length + payload
+    // Create the full message: identifier + payload_length
     std::vector<uint8_t> message;
-    message.reserve(8 + payload_len);
+    message.reserve(8);
 
     // 1. Add file identifier (4 bytes)
     message.insert(message.end(), FILE_IDENTIFIER, FILE_IDENTIFIER + 4);
@@ -89,9 +89,6 @@ void send_request(flatbuffers::FlatBufferBuilder& builder) {
     // 2. Add payload length (4 bytes, little-endian)
     // This assumes the host machine is little-endian (like x86)
     message.insert(message.end(), reinterpret_cast<uint8_t*>(&payload_len), reinterpret_cast<uint8_t*>(&payload_len) + 4);
-
-    // 3. Add the FlatBuffer payload
-    message.insert(message.end(), buf, buf + payload_len);
 
     // --- Socket Communication ---
     int sock = 0;
@@ -114,6 +111,7 @@ void send_request(flatbuffers::FlatBufferBuilder& builder) {
 
     // Send the message
     send(sock, message.data(), message.size(), 0);
+    send(sock, buf, payload_len, 0);
 
     // Receive the response
     char buffer[1024] = {0};
