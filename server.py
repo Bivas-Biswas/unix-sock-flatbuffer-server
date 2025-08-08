@@ -1,6 +1,7 @@
 import socket
 import select
 import threading
+import os
 from concurrent.futures import ThreadPoolExecutor
 
 from MyServer.Payloads.Root import Root
@@ -19,6 +20,13 @@ class Server:
         self.thread_pool = ThreadPoolExecutor(max_workers=self.max_workers)
 
     def start(self):
+        try:
+            if os.path.exists(self.sock_path):
+                os.remove(self.sock_path)
+        except OSError as e:
+            print(f"[SERVER] Error removing socket file: {e}")
+            return
+        
         self._setup_socket()
         print(f"[SERVER] Listening on {self.sock_path} with {self.max_workers} workers.")
         try:
