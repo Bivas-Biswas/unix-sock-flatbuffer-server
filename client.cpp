@@ -5,16 +5,15 @@
 
 // Standard C headers for socket programming (Linux/macOS)
 #include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 #include <unistd.h>
+#include <sys/un.h>
 
 // Include the generated FlatBuffers header
 #include "schema_generated.h"
 
 // Configuration
-const char* HOST = "127.0.0.1";
-const int PORT = 65432;
+const char* SOCKET_PATH = "/tmp/my_server.sock";
+
 // Must match the 4-byte identifier in the server and schema
 const char* FILE_IDENTIFIER = "PLDE";
 
@@ -96,18 +95,15 @@ void send_request(flatbuffers::FlatBufferBuilder& builder) {
 
     // --- Socket Communication ---
     int sock = 0;
-    struct sockaddr_in serv_addr;
+    sockaddr_un serv_addr{};
 
-    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+    if ((sock = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
         throw std::runtime_error("Socket creation error");
     }
 
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(PORT);
-
-    if (inet_pton(AF_INET, HOST, &serv_addr.sin_addr) <= 0) {
-        throw std::runtime_error("Invalid address/ Address not supported");
-    }
+    memset(&serv_addr, 0, sizeof(serv_addr));
+    serv_addr.sun_family = AF_UNIX;
+    strncpy(serv_addr.sun_path, SOCKET_PATH, sizeof(serv_addr.sun_path) - 1);
 
     if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
         throw std::runtime_error("Connection Failed");

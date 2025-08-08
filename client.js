@@ -23,9 +23,8 @@ if (!MyServer || !MyServer.Payloads || !MyServer.Payloads.EchoRequest || !MyServ
 
 
 // --- Configuration ---
-const HOST = '127.0.0.1';
-const PORT = 65432;
 const FILE_IDENTIFIER = "PLDE"; // Must match your server
+const SOCKET_PATH = "/tmp/my_server.sock";
 
 /**
  * Creates a FlatBuffer payload for an ECHO request.
@@ -79,7 +78,7 @@ function sendRequest(builder, payloadType, payloadOffset) {
 
     // --- TCP Socket Communication ---
     const client = new net.Socket();
-    client.connect(PORT, HOST, () => {
+    client.connect(SOCKET_PATH, () => {
         console.log(`\n--- Sending request of type ${payloadType} ---`);
         console.log(`Client: Connected to TCP server.`);
         console.log(`Client: Sending ${fullMessage.length} bytes total.`);

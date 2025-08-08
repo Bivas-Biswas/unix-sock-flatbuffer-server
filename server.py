@@ -9,9 +9,8 @@ class Server:
     FILE_IDENTIFIER = b'PLDE'
     HEADER_SIZE = 8 # 4 bytes for identifier + 4 bytes for payload length
 
-    def __init__(self, host, port, router, max_workers=5):
-        self.host = host
-        self.port = port
+    def __init__(self, sock_path, router, max_workers=5):
+        self.sock_path = sock_path
         self.router = router
         self.max_workers = max_workers
         self.server_socket = None
@@ -21,7 +20,7 @@ class Server:
 
     def start(self):
         self._setup_socket()
-        print(f"[SERVER] Listening on {self.host}:{self.port} with {self.max_workers} workers.")
+        print(f"[SERVER] Listening on {self.sock_path} with {self.max_workers} workers.")
         try:
             self._event_loop()
         except KeyboardInterrupt:
@@ -30,10 +29,10 @@ class Server:
             self._shutdown()
 
     def _setup_socket(self):
-        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server_socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.server_socket.setblocking(False)
-        self.server_socket.bind((self.host, self.port))
+        self.server_socket.bind(self.sock_path)
         self.server_socket.listen(50)
         self.epoll = select.epoll()
         self.epoll.register(self.server_socket.fileno(), select.EPOLLIN)

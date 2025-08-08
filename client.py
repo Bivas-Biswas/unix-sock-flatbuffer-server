@@ -8,8 +8,8 @@ import MyServer.Payloads.EchoRequest
 import MyServer.Payloads.ReverseRequest
 
 # --- Configuration ---
-HOST = '127.0.0.1'
-PORT = 65432
+SOCKET_PATH = "/tmp/my_server.sock";
+
 # FIX: File identifier must be exactly 4 bytes.
 FILE_IDENTIFIER = b'PLDE' # Must match the server and schema
 
@@ -48,9 +48,9 @@ def send_request(builder, payload_type, payload_offset):
     # Length is a 4-byte little-endian integer
     full_message = FILE_IDENTIFIER + payload_len.to_bytes(4, 'little') + buf
 
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
         try:
-            s.connect((HOST, PORT))
+            s.connect(SOCKET_PATH)
             print(f"\n--- Sending request of type {payload_type} ---")
             print(f"Client: Sending {len(full_message)} bytes total.")
             s.sendall(full_message)

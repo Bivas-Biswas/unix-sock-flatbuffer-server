@@ -15,6 +15,7 @@ class Router:
         """Retrieves the handler for a given payload type."""
         return self._routes.get(payload_type)
 
+SOCKET_PATH = "/tmp/my_server.sock";
 
 if __name__ == "__main__":
     app_router = Router()
@@ -23,5 +24,5 @@ if __name__ == "__main__":
     app_router.register(MyServer.Payloads.AnyPayload.AnyPayload.EchoRequest, handle_echo)
     app_router.register(MyServer.Payloads.AnyPayload.AnyPayload.ReverseRequest, handle_reverse)
 
-    server = Server('127.0.0.1', 65432, app_router, max_workers=5)
+    server = Server(SOCKET_PATH, app_router, max_workers=5)
     server.start()
